@@ -1,0 +1,27 @@
+# Data, model weights and run outputs are not versioned
+data/
+outputs/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.npy
+*.npz
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
