@@ -44,7 +44,7 @@ HierarchiRetina/
 │   ├── stage3_grading/
 │   └── cascade/
 ├── results/                    # released per-image predictions (no labels) + checksums
-├── scripts/                    # reproduce_paper_results.py: every end-to-end number, CPU only
+├── scripts/                    # reproduce_paper_results.py (paper numbers, CPU only), fetch_weights.py
 ├── docs/overview.png
 ├── requirements.txt
 └── pyproject.toml
@@ -152,9 +152,11 @@ classes keep the original attribute names, so the trained checkpoints load with 
 3. **HSMoE-AUNet batch size.** MA used batch 4 × accumulation 4; HE, EX and CWS used batch 2 ×
    accumulation 4. Per-lesion settings (expert pools and counts, loss terms, learning rates, schedulers,
    thresholds, test-time flips) are collected in `hierarchiretina.stage2.hsmoe_aunet.LESION_CONFIGS`.
-4. **LG-DRG learning-rate schedule.** The warm-up/cosine schedule is sized in batches but stepped once
-   per optimiser update (gradient accumulation 8), so warm-up lasts about 24 epochs and the cosine
-   phase barely starts within 60 epochs. Kept on purpose; see `hierarchiretina.stage3.engine`.
+4. **LG-DRG batch and learning-rate schedule.** The five fold models used batch 16 with gradient
+   accumulation 4 (effective batch 64; stored in each released checkpoint). The warm-up/cosine schedule
+   is sized in batches but stepped once per optimiser update, so warm-up lasts about 12 epochs and only
+   about a fifth of the cosine phase elapses within 60 epochs. The fold-0 γ-fix retrain used
+   accumulation 8. Kept as trained; see `hierarchiretina.stage3.engine`.
 5. **LG-DRG ordinal loss.** For task k ≥ 1 the training subset is `y ≥ k − 1` (standard CORN uses
    `y ≥ k`). Kept as trained; the decode thresholds were fitted on out-of-fold predictions of these models.
 6. **Library versions.** Augmentations use the Albumentations 1.x API; under 2.x some arguments
@@ -164,13 +166,41 @@ classes keep the original attribute names, so the trained checkpoints load with 
 
 ## 7. Trained models and predictions
 
+* **Trained weights** for every model in the cascade (12 files, about 10 GB) are attached to the
+  [v1.0 release](https://github.com/asifuddin01/HierarchiRetina/releases/tag/v1.0). One command downloads
+  them into the paths the notebooks expect and checks each SHA-256 against
+  [`scripts/weights_manifest.json`](scripts/weights_manifest.json):
+
+  ```bash
+  python scripts/fetch_weights.py             # all stages
+  python scripts/fetch_weights.py --stage 3   # LG-DRG only (or --stage 1, --stage 2)
+  python scripts/fetch_weights.py --list      # files, sizes and target paths
+  ```
+
+| Stage | Model | Release file | Size | Placed at |
+|---|---|---|---|---|
+| I | ConvNeXt V2-L screening gate (768 px) | `stage1_convnextv2l_768_best_auc_model.pth` | 1.61 GB | `outputs/stage1/convnextv2_768/best_auc_model.pth` |
+| II | HSMoE-AUNet, microaneurysms | `stage2_hsmoe_aunet_MA_best_model.pth` | 0.87 GB | `checkpoints/stage2/hsmoe_aunet/MA/best_model.pth` |
+| II | HSMoE-AUNet, haemorrhages | `stage2_hsmoe_aunet_HE_best_model.pth` | 0.76 GB | `checkpoints/stage2/hsmoe_aunet/HE/best_model.pth` |
+| II | HSMoE-AUNet, exudates | `stage2_hsmoe_aunet_EX_best_model.pth` | 0.75 GB | `checkpoints/stage2/hsmoe_aunet/EX/best_model.pth` |
+| II | HSMoE-AUNet, cotton-wool spots | `stage2_hsmoe_aunet_CWS_best_model.pth` | 0.77 GB | `checkpoints/stage2/hsmoe_aunet/CWS/best_model.pth` |
+| II | SwinHRUNetPP, vessels | `stage2_swinhrunetpp_best_dice.pth` | 0.44 GB | `checkpoints/stage2/swinhrunetpp/best_dice.pth` |
+| III | LG-DRG, fold 0 | `stage3_lgdrg_best_fold0.pt` | 0.80 GB | `outputs/stage3/checkpoints/best_fold0.pt` |
+| III | LG-DRG, fold 1 | `stage3_lgdrg_best_fold1.pt` | 0.80 GB | `outputs/stage3/checkpoints/best_fold1.pt` |
+| III | LG-DRG, fold 2 | `stage3_lgdrg_best_fold2.pt` | 0.80 GB | `outputs/stage3/checkpoints/best_fold2.pt` |
+| III | LG-DRG, fold 3 | `stage3_lgdrg_best_fold3.pt` | 0.80 GB | `outputs/stage3/checkpoints/best_fold3.pt` |
+| III | LG-DRG, fold 4 | `stage3_lgdrg_best_fold4.pt` | 0.80 GB | `outputs/stage3/checkpoints/best_fold4.pt` |
+| III | LG-DRG, fold 0 retrained with γ = 0.1 (Table V) | `stage3_lgdrg_gammafix_best_fold0.pt` | 0.80 GB | `outputs/stage3/checkpoints_gammafix/best_fold0.pt` |
+
+  The files keep only what inference needs. Optimiser, scheduler and AMP-scaler states were removed,
+  and every kept tensor was checked to be bit-identical to the training checkpoint. The Stage I file
+  holds the raw weights and the EMA shadow (`stage1.model.load_eval_weights` applies the EMA) together
+  with the validation threshold; the SwinHRUNetPP file holds the EMA weights and the threshold history
+  (`load_best_model_and_threshold`); the LG-DRG files hold the EMA weights and the training
+  configuration (`load_lgdrg`).
 * **Per-image predictions** for all 58,689 test images and the LG-DRG out-of-fold predictions are in
-  [`results/`](results/) (no reference labels; SHA-256 checksums in `results/SHA256SUMS`). They are
-  also attached to the [v1.0 release](https://github.com/asifuddin01/HierarchiRetina/releases/tag/v1.0)
-  as one zip file together with the reproduction script.
-* **Trained weights** (Stage I gate, the four HSMoE-AUNet lesion models, SwinHRUNetPP and the five
-  LG-DRG folds) will be attached to the same v1.0 release, with their checksums listed in the release
-  notes.
+  [`results/`](results/) (no reference labels; SHA-256 checksums in `results/SHA256SUMS`), together with
+  `scripts/reproduce_paper_results.py` (Section 5). They are also attached to the release as one zip file.
 
 ## 8. Citation
 

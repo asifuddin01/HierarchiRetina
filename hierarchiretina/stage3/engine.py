@@ -45,7 +45,7 @@ class LGDRGConfig:
     drop_rate: float = 0.3          # head dropout
     epochs: int = 60
     batch_size: int = 16
-    grad_accum: int = 8             # value in the training notebook's CFG (paper text says 4)
+    grad_accum: int = 4             # stored in all five released fold checkpoints (effective batch 64)
     lr: float = 2e-4                # heads, gate, mask encoder
     backbone_lr_mult: float = 0.1
     weight_decay: float = 0.05
@@ -124,8 +124,9 @@ def build_scheduler(opt, steps_per_epoch: int, cfg: LGDRGConfig):
     Known quirk (kept on purpose, the released models were trained this way): the schedule
     length is counted in *batches* (``steps_per_epoch = len(train_loader)``) but
     ``sched.step()`` is called once per *optimiser update*, i.e. every ``grad_accum`` batches.
-    Warm-up therefore lasts ``warmup_epochs * grad_accum`` epochs (24 with accumulation 8;
-    12 with 4) and the cosine is far from complete when training stops at 60 epochs.
+    Warm-up therefore lasts ``warmup_epochs * grad_accum`` epochs (12 with the accumulation of 4
+    used for the five fold models; 24 for the gamma-fix retrain, which used 8), and at epoch 60
+    only about a fifth of the cosine phase has elapsed.
     """
     total = steps_per_epoch * cfg.epochs
     warm = steps_per_epoch * cfg.warmup_epochs

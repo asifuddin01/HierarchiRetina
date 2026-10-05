@@ -1,0 +1,74 @@
+[
+  {
+    "asset": "stage1_convnextv2l_768_best_auc_model.pth",
+    "place_at": "outputs/stage1/convnextv2_768/best_auc_model.pth",
+    "bytes": 1614202699,
+    "sha256": "89fd275b1624f840bb20f63994710e75e2c4d5d56635011d4ff8e69f3eb60cff"
+  },
+  {
+    "asset": "stage2_hsmoe_aunet_MA_best_model.pth",
+    "place_at": "checkpoints/stage2/hsmoe_aunet/MA/best_model.pth",
+    "bytes": 874071456,
+    "sha256": "42c776e9b1bc04f6fb267a3e325a0188a1fad54097293961f3e6be1200b092f8"
+  },
+  {
+    "asset": "stage2_hsmoe_aunet_HE_best_model.pth",
+    "place_at": "checkpoints/stage2/hsmoe_aunet/HE/best_model.pth",
+    "bytes": 762747290,
+    "sha256": "c8fc44d5b14f54cb26c8418d6e40c61c283bf7daae7a1b3fd2ff31923371d94a"
+  },
+  {
+    "asset": "stage2_hsmoe_aunet_EX_best_model.pth",
+    "place_at": "checkpoints/stage2/hsmoe_aunet/EX/best_model.pth",
+    "bytes": 751909002,
+    "sha256": "6a4bd1b40749475dbb36a1812e08d5caf3a4fce5d2c90892c0f53ab55e64453e"
+  },
+  {
+    "asset": "stage2_hsmoe_aunet_CWS_best_model.pth",
+    "place_at": "checkpoints/stage2/hsmoe_aunet/CWS/best_model.pth",
+    "bytes": 771587386,
+    "sha256": "c42c9b7754c71c474d9f58587d3fbe63e17deb5611a3f5656e76f0415bd5bba2"
+  },
+  {
+    "asset": "stage2_swinhrunetpp_best_dice.pth",
+    "place_at": "checkpoints/stage2/swinhrunetpp/best_dice.pth",
+    "bytes": 441078919,
+    "sha256": "32bad65f3a1cf099e847fd292ff5ff84199ed0882112c0a22499e423e481422c"
+  },
+  {
+    "asset": "stage3_lgdrg_best_fold0.pt",
+    "place_at": "outputs/stage3/checkpoints/best_fold0.pt",
+    "bytes": 795798428,
+    "sha256": "c1593eacca1148213c89424f19c47b4997d30eaf62cdff971ed147e529ccf57c"
+  },
+  {
+    "asset": "stage3_lgdrg_best_fold1.pt",
+    "place_at": "outputs/stage3/checkpoints/best_fold1.pt",
+    "bytes": 795798428,
+    "sha256": "9efb5c932ef7142e36f4e6b0b1f170936fdf771df659dbd53a0b82fa889714eb"
+  },
+  {
+    "asset": "stage3_lgdrg_best_fold2.pt",
+    "place_at": "outputs/stage3/checkpoints/best_fold2.pt",
+    "bytes": 795798428,
+    "sha256": "2336a1a56cb82c2f6eb47eb981e57974d9f47b066382e2c2b1b9d923b6f91e0f"
+  },
+  {
+    "asset": "stage3_lgdrg_best_fold3.pt",
+    "place_at": "outputs/stage3/checkpoints/best_fold3.pt",
+    "bytes": 795798428,
+    "sha256": "67341f8973c759bcf3dcb72e1dc75058d37a4b573e511fd7e180e663a9acdb99"
+  },
+  {
+    "asset": "stage3_lgdrg_best_fold4.pt",
+    "place_at": "outputs/stage3/checkpoints/best_fold4.pt",
+    "bytes": 795798428,
+    "sha256": "239107b0c4f30cdf3aa92dd16b1bb7df564e4add5edac831ca59b85ca1ee888e"
+  },
+  {
+    "asset": "stage3_lgdrg_gammafix_best_fold0.pt",
+    "place_at": "outputs/stage3/checkpoints_gammafix/best_fold0.pt",
+    "bytes": 795802235,
+    "sha256": "18a9a2cf885174cd6f586d9eed478161e6d726ed016b88f78596360ae019df81"
+  }
+]

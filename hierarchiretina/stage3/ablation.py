@@ -76,10 +76,11 @@ def run_mask_ablation(model, loader, device, use_amp: bool = True,
 
 
 def gamma_fix_config(cfg: LGDRGConfig, gamma_init: float = GAMMA_FIX_INIT) -> LGDRGConfig:
-    """Fold-0 retrain config: the only change is gamma initialised to ``gamma_init`` and
-    excluded from weight decay; checkpoints go to ``<out_dir>_gammafix``."""
+    """Fold-0 retrain config, as run: gamma initialised to ``gamma_init`` and excluded from
+    weight decay, and gradient accumulation 8 (the value stored in the released gamma-fix
+    checkpoint; the five fold models used 4). Checkpoints go to ``<out_dir>_gammafix``."""
     return dataclasses.replace(cfg, out_dir=str(cfg.out_dir).rstrip("\\/") + "_gammafix",
-                               gamma_init=gamma_init, gamma_no_decay=True)
+                               gamma_init=gamma_init, gamma_no_decay=True, grad_accum=8)
 
 
 def ablation_table(original: pd.DataFrame, retrained: pd.DataFrame | None = None) -> pd.DataFrame:
