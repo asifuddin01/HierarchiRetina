@@ -17,6 +17,7 @@ Biomedical and Health Informatics).
 | II | **SwinHRUNetPP** | retinal vessel segmentation at 512 × 512 | pooled Dice 0.731 |
 | III | **LG-DRG** (5-fold ensemble) | gradability (Grade 5) + ordinal severity (Grades 1–4) | out-of-fold QWK 0.781 (tuned); ungradable AUC 0.999 |
 | All | cascade | end-to-end grading of 58,689 test images | QWK 0.804 (95% CI 0.798–0.809) |
+| All | cascade | DDR official test split, six classes (4,105 images, ungradable included) | accuracy 85.6% (95% CI 84.6–86.7) |
 
 1. **Stage I** screens every image. Images below the gate threshold (τ = 0.2392) are returned as Grade 0
    and are never segmented or graded.
@@ -42,6 +43,8 @@ HierarchiRetina/
 │   ├── stage2_segmentation/
 │   ├── stage3_grading/
 │   └── cascade/
+├── results/                    # released per-image predictions (no labels) + checksums
+├── scripts/                    # reproduce_paper_results.py: every end-to-end number, CPU only
 ├── docs/overview.png
 ├── requirements.txt
 └── pyproject.toml
@@ -97,7 +100,7 @@ Run the notebooks in this order. Each notebook explains its steps in numbered ma
 | # | Notebook | What it produces |
 |---|---|---|
 | 1 | `stage1_screening/01_train_gate_768` | stratified 80/20 split; Stage I checkpoint |
-| 2 | `stage1_screening/02_threshold_and_test_evaluation` | τ from validation (argmax 2·TPR − FPR); test metrics, calibration, Fig. 2 |
+| 2 | `stage1_screening/02_threshold_and_test_evaluation` | τ from validation (argmax 2·TPR − FPR); test metrics, calibration, Fig. 6(a)–(b) |
 | 3 | `stage1_screening/03_route_test_pool` | `outputs/stage1_gate/dr_from_test/` (19,154 images) and `data/test/stage1_manifest.csv` |
 | 4 | `stage1_screening/04_baselines_and_equal_load_comparison` | Stage I comparison table (SwinV2-L 384, ConvNeXt V2-L 512, folds, hybrid) |
 | 5 | `stage2_segmentation/01_prepare_lesion_data` | filtered, cropped lesion data and the 70/20/10 split (per lesion) |
@@ -112,11 +115,24 @@ Run the notebooks in this order. Each notebook explains its steps in numbered ma
 | 14 | `stage3_grading/02_oof_predictions_and_threshold_calibration` | out-of-fold table; CORN thresholds fitted on OOF only |
 | 15 | `stage3_grading/03_test_inference_ensemble` | 5-fold ensemble predictions on the routed test images |
 | 16 | `cascade/01_end_to_end_evaluation` | end-to-end results, error attribution, bootstrap CIs, per-dataset table |
-| 17 | `cascade/02_gate_threshold_sweep` | end-to-end QWK vs. gate threshold (Fig. 5) |
+| 17 | `cascade/02_gate_threshold_sweep` | end-to-end QWK vs. gate threshold (Fig. 6(c)–(d)) |
 | 18 | `cascade/03_ddr_benchmark_protocols` | DDR five- and six-class protocols |
 | 19 | `cascade/04_mask_ablation_and_gamma_fix` | mask-reliance ablation and the fold-0 γ experiment |
 
 Notebooks 16–18 need only the per-image prediction CSVs and run on a CPU in under a minute.
+
+**Checking the paper's numbers without a GPU.** `scripts/reproduce_paper_results.py` recomputes every
+end-to-end result of the paper (Tables II, IV, VI, VII and VIII, Figs. 6 and 8, and the referral
+figures) from the released predictions in `results/` and prints each value next to the number in
+the paper. It needs only numpy and pandas and runs in about 10 s:
+
+```bash
+python scripts/reproduce_paper_results.py --labels data/test/test_grade.csv
+# ... 123 of 123 values match the paper.
+```
+
+The labels are not redistributed; `results/README.md` explains how to build the label file from
+the official dataset sources.
 
 Mask files follow the naming LG-DRG reads: `<root>/<lesion>/<stem><suffix>.png`, with suffixes
 `ma: _mask`, `he: _he_mask`, `ex: _ex_mask`, `cws: _cws_mask`, `vessel: _mask` (binary, 0/255, original
@@ -148,8 +164,13 @@ classes keep the original attribute names, so the trained checkpoints load with 
 
 ## 7. Trained models and predictions
 
-Trained weights and the per-image prediction files used for every table will be released on the
-repository's Releases page.
+* **Per-image predictions** for all 58,689 test images and the LG-DRG out-of-fold predictions are in
+  [`results/`](results/) (no reference labels; SHA-256 checksums in `results/SHA256SUMS`). They are
+  also attached to the [v1.0 release](https://github.com/asifuddin01/HierarchiRetina/releases/tag/v1.0)
+  as one zip file together with the reproduction script.
+* **Trained weights** (Stage I gate, the four HSMoE-AUNet lesion models, SwinHRUNetPP and the five
+  LG-DRG folds) will be attached to the same v1.0 release, with their checksums listed in the release
+  notes.
 
 ## 8. Citation
 
@@ -157,4 +178,6 @@ A citation entry will be added when the paper is published.
 
 ## 9. License
 
-MIT License; see [LICENSE](LICENSE). The datasets keep their own licences and terms of use.
+Code: MIT License; see [LICENSE](LICENSE). Released predictions and trained weights:
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), because the training datasets restrict
+commercial use. The datasets keep their own licences and terms of use.
