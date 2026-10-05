@@ -1,10 +1,10 @@
 # HierarchiRetina
 
-**A screening–segmentation–grading cascade for diabetic retinopathy, evaluated end-to-end.**
+**A diabetic retinopathy screening and grading cascade with heterogeneous mixture-of-experts lesion segmentation.**
 
-This repository contains the code for the manuscript *"HierarchiRetina: A Screening–Segmentation–Grading
-Cascade for Diabetic Retinopathy with Heterogeneous Mixture-of-Experts Lesion Segmentation, Evaluated
-End-to-End"* (submitted to IEEE Journal of Biomedical and Health Informatics).
+This repository contains the code for the manuscript *"HierarchiRetina: A Diabetic Retinopathy Screening and
+Grading Cascade with Heterogeneous Mixture-of-Experts Lesion Segmentation"* (submitted to IEEE Journal of
+Biomedical and Health Informatics).
 
 ![HierarchiRetina overview](docs/overview.png)
 
