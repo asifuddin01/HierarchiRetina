@@ -1,4 +1,4 @@
-# Released predictions (paper version, v1.0)
+# Released predictions (paper version; unchanged since v1.0)
 
 These files hold the model outputs behind every end-to-end number in the paper. Run
 `scripts/reproduce_paper_results.py` to recompute the numbers and compare each one with the

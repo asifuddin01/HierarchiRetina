@@ -122,13 +122,13 @@ Run the notebooks in this order. Each notebook explains its steps in numbered ma
 Notebooks 16–18 need only the per-image prediction CSVs and run on a CPU in under a minute.
 
 **Checking the paper's numbers without a GPU.** `scripts/reproduce_paper_results.py` recomputes every
-end-to-end result of the paper (Tables II, IV, VI, VII and VIII, Figs. 6 and 8, and the referral
-figures) from the released predictions in `results/` and prints each value next to the number in
+end-to-end number in the paper (Tables II, IV and VI to VIII, Figs. 6 to 8, and the values quoted in
+the text) from the released predictions in `results/` and prints each value next to the number in
 the paper. It needs only numpy and pandas and runs in about 10 s:
 
 ```bash
 python scripts/reproduce_paper_results.py --labels data/test/test_grade.csv
-# ... 123 of 123 values match the paper.
+# ... 203 of 203 values match the paper.
 ```
 
 The labels are not redistributed; `results/README.md` explains how to build the label file from
@@ -200,7 +200,8 @@ classes keep the original attribute names, so the trained checkpoints load with 
   configuration (`load_lgdrg`).
 * **Per-image predictions** for all 58,689 test images and the LG-DRG out-of-fold predictions are in
   [`results/`](results/) (no reference labels; SHA-256 checksums in `results/SHA256SUMS`), together with
-  `scripts/reproduce_paper_results.py` (Section 5). They are also attached to the release as one zip file.
+  `scripts/reproduce_paper_results.py` (Section 5). They are also attached to the
+  [v1.0.1 release](https://github.com/asifuddin01/HierarchiRetina/releases/tag/v1.0.1) as one zip file.
 
 ## 8. Citation
 

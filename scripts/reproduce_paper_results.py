@@ -15,9 +15,10 @@ What the script does
      (expected: t = (0.38, 0.60, 0.19), t_g = 0.10).
   3. Re-decodes the Stage III grade of every routed test image from the released
      probabilities and checks it against the released grade.
-  4. Recomputes the proposed-gate row of Table II, the pooled row of Table IV, Tables VI to
-     VIII, the error analysis of Fig. 8, the gate sweep of Fig. 6(c)-(d) and the referral
-     figures in the text.
+  4. Recomputes every end-to-end number in the paper: the proposed-gate row of Table II,
+     Fig. 6, Tables VI to VIII, the examples of Fig. 7, the confusion matrix and error analysis
+     of Fig. 8, and the numbers quoted in the text (Sections II-F, III and IV), together with
+     the pooled out-of-fold figures of Stage III (Section III-C and Table IV).
   5. Prints every value next to the number printed in the paper.
 
 The 95% bootstrap intervals use one numpy generator seeded with 2026 and called in the
@@ -239,8 +240,13 @@ def main():
     t, tg, oof_best = fit_thresholds(yo, oof[PC].values)
     oof_cal = decode(*corn_from_full(oof[PC].values), t, tg)
     print(f"   t = ({t[0]:.2f}, {t[1]:.2f}, {t[2]:.2f}), t_g = {tg:.2f}")
-    check("Table IV", "Thresholds t1, t2, t3", f"({t[0]:.2f}, {t[1]:.2f}, {t[2]:.2f})", "(0.38, 0.60, 0.19)")
-    check("Table IV", "Gradability threshold t_g", f"{tg:.2f}", "0.10")
+    check("Section II-E", "Thresholds t1, t2, t3", f"({t[0]:.2f}, {t[1]:.2f}, {t[2]:.2f})", "(0.38, 0.60, 0.19)")
+    check("Section II-E", "Gradability threshold t_g", f"{tg:.2f}", "0.10")
+    check("Section II-E", "OOF development images (Grades 1-5)", len(oof), "18,570")
+    oof_argmax = oof[PC].values.argmax(1) + 1
+    check("Section III-C", "Pooled OOF QWK, argmax decode", qwk_sev(yo, oof_argmax, False)[0], "0.771")
+    check("Section III-C", "OOF AUC for ungradable images (Grade 5)", auc((yo == 5).astype(int), oof["p_grade_5"].values),
+          "0.999")
     check("Table IV", "Pooled OOF QWK, tuned (n = 18,570)", oof_best, "0.781")
     check("Table IV", "Pooled OOF accuracy, tuned", float(np.mean(oof_cal == yo)), "0.774")
 
@@ -293,6 +299,17 @@ def main():
     check("Table II", "DR images blocked (FN)", fn, "2,459")
     check("Fig. 1", "Images passing the gate", int(passed.sum()), "19,154")
     check("Fig. 1", "Images stopped at the gate", int((~passed).sum()), "39,535")
+    check("Section III-A", "Gate AUC, 95% CI", gate_auc_ci, "0.926-0.932")
+    check("Section III-A", "Severe and proliferative DR routed (%)", 100 * float(passed[(yt == 3) | (yt == 4)].mean()),
+          "97.8")
+    check("Section III-A", "Ungradable images routed", f"{int(passed[yt == 5].sum())} of {int((yt == 5).sum())}",
+          "345 of 346")
+    check("Section III-A", "Test pool stopped at the gate (%)", 100 * float((~passed).mean()), "67.4")
+    blocked_dr = ~passed & (yt > 0)
+    check("Section III-A", "Blocked DR cases that are mild or moderate (%)",
+          100 * float(np.isin(yt[blocked_dr], [1, 2]).mean()), "97")
+    for g, paper in enumerate(("0.11", "0.64", "0.90", "0.99", "0.97", "1.00")):
+        check("Fig. 6(b)", f"Fraction of Grade {g} routed", float(passed[yt == g].mean()), paper)
 
     # 4b. Cascade headline (Table VI); bootstrap order as in the paper
     A = C[C.passed & (C.true_grade > 0)]
@@ -306,6 +323,7 @@ def main():
     check("Table VI", "View B, tuned: accuracy", float(np.mean(yp == yt)), "0.814")
     check("Table VI", "View B, tuned: macro-F1", macro_f1(yt, yp, range(6)), "0.659")
     check("Table VI", "View B, argmax: QWK", qwk_sev(yt, C.final_g_argmax.values, True)[0], "0.801")
+    check("Section II-F", "View B QWK with Grade 5 on the ordinal axis", qwk(yt, yp, range(6)), "0.814")
     check("Table VI", "View A, tuned: n", len(A), "14,409")
     check("Table VI", "View A, tuned: QWK", qA, "0.732")
     check("Table VI", "View A, tuned: 95% CI", qA_ci, "0.722-0.743")
@@ -347,6 +365,23 @@ def main():
         cm[a, b] += 1
     pd.DataFrame(cm, index=[f"true {i}" for i in range(6)],
                  columns=[f"pred {i}" for i in range(6)]).to_csv(out / "confusion_end_to_end.csv")
+    paper_cm = [["37,076", "3,035", "1,492", "12", "100", "106"],
+                ["1,442", "1,890", "712", "3", "11", "2"],
+                ["951", "1,119", "6,665", "567", "83", "97"],
+                ["21", "9", "535", "789", "54", "9"],
+                ["44", "10", "284", "156", "1,031", "38"],
+                ["1", "2", "4", "0", "8", "331"]]
+    for a in range(6):
+        for b in range(6):
+            check("Fig. 8(a)", f"True G{a}, output G{b}", int(cm[a, b]), paper_cm[a][b])
+
+    # Fig. 7: one correctly graded test image per grade
+    for stem, g, p_dr in (("IDRiD_029", 0, "0.20"), ("1232_left", 1, "0.55"), ("20170629112149103", 2, "1.00"),
+                          ("13823_left", 3, "1.00"), ("25900_left", 4, "1.00"), ("007-8910-605", 5, "0.99")):
+        r = C[C.stem == stem].iloc[0]
+        check("Fig. 7", f"{stem}: p(DR)", float(r.prob), p_dr)
+        check("Fig. 7", f"{stem}: reference grade", int(r.true_grade), str(g))
+        check("Fig. 7", f"{stem}: output grade", int(r.final), str(g))
 
     # 4d. Per dataset (Table VIII)
     rows = []
@@ -373,6 +408,7 @@ def main():
         "IDRiD": ("103", "69", "34", "0.957", "0.647", "3", "0.747", "0.830", "0.660"),
         "All": ("58,689", "16,868", "41,821", "0.854", "0.887", "2,459", "0.732", "0.804", "0.814"),
     }
+    check("Section III-F", "EyePACS share of the test pool (%)", 100 * float((C.source == "eyepacs").mean()), "91")
     for r in rows:
         p = paper8[r["dataset"]]
         k = f"Table VIII, {r['dataset']}"
@@ -432,6 +468,19 @@ def main():
     check("Fig. 6(c)", "Peak end-to-end QWK of the sweep", top.qwk, "0.825")
     check("Fig. 6(c)", "Threshold at the peak", top.threshold, "0.675")
     check("Fig. 6(d)", "DR images blocked at that threshold", top.dr_blocked, "3,779")
+    ps_top = ((C.prob >= top.threshold) & C.passed).values
+    yp_top = np.where(ps_top, C.final.values, 0)
+    extra = passed & ~ps_top & (yt > 0)
+    check("Section III-E", "Extra DR cases blocked at that threshold", int(extra.sum()), "1,320")
+    check("Section III-E", "Extra blocked cases that are mild or moderate (%)",
+          100 * float(np.isin(yt[extra], [1, 2]).mean()), "94")
+    admitted_h = passed & (yt == 0)
+    check("Section III-E", "Admitted healthy eyes off by two or more grades (%)",
+          100 * float((yp[admitted_h] >= 2).mean()), "36")
+    check("Section III-E", "Referral sensitivity at that threshold",
+          float(((yt >= 2) & (yp_top >= 2)).sum() / (yt >= 2).sum()), "0.795")
+    check("Section III-E", "Referral specificity at that threshold",
+          float(((yt < 2) & (yp_top < 2)).sum() / (yt < 2).sum()), "0.969")
 
     # 4g. Referral (text); bootstrap order as in the paper
     ref_t, ref_p = yt >= 2, yp >= 2
@@ -440,10 +489,18 @@ def main():
     sens_ci = boot(rng, lambda i: float((ref_t[i] & ref_p[i]).sum() / ref_t[i].sum()), n)
     spec_ci = boot(rng, lambda i: float((~ref_t[i] & ~ref_p[i]).sum() / (~ref_t[i]).sum()), n)
     vt_t, vt_p = (yt >= 3) & (yt <= 4), (yp >= 3) & (yp <= 4)
-    check("Section IV-D", "Referral sensitivity (Grade >= 2 or ungradable)", sens, "0.832")
-    check("Section IV-D", "Referral specificity", spec, "0.947")
-    check("Section IV-D", "Sensitivity for vision-threatening DR (Grades 3-4)",
+    check("Section III-D", "Referral sensitivity (Grade >= 2 or ungradable)", sens, "0.832")
+    check("Section III-D", "Referral specificity", spec, "0.947")
+    check("Section III-D", "Sensitivity for vision-threatening DR (Grades 3-4)",
           float((vt_t & vt_p).sum() / vt_t.sum()), "0.681")
+    vt_miss = vt_t & ~vt_p
+    check("Section III-D", "Missed vision-threatening DR", int(vt_miss.sum()), "950")
+    check("Section III-D", "Missed vision-threatening DR graded moderate", int((vt_miss & (yp == 2)).sum()), "819")
+
+    # 4h. Gradability head on the test pool (Section IV)
+    check("Section IV", "Ungradable test images", int((yt == 5).sum()), "346")
+    check("Section IV", "Ungradable images output as Grade 5", int(((yt == 5) & (yp == 5)).sum()), "331")
+    check("Section IV", "Gradable images output as Grade 5", int(((yt < 5) & (yp == 5)).sum()), "252")
 
     # ------------------------------------------------------------------ report and files
     numbers = {
