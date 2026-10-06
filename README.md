@@ -143,8 +143,8 @@ image size).
 The code reproduces what was run for the paper, including details that are easy to miss. Model
 classes keep the original attribute names, so the trained checkpoints load with `strict=True`.
 
-1. **Gate threshold.** τ = 0.2391715943813324 (full precision) routes 19,154 test images; the rounded
-   0.2392 routes 19,153 and is used for the equal-load comparison.
+1. **Gate threshold.** τ = 0.2391715943813324 (full precision) routes 19,154 test images, the load at
+   which Table II compares all gates. Rounded to 0.2392, it would route 19,153.
 2. **HSMoE-AUNet encoder initialisation.** The model's weight-initialisation routine runs over all
    modules after `timm` loads the ConvNeXt-S weights, so the encoder's convolution and linear weights are
    re-initialised (only normalisation and layer-scale parameters keep their pretrained values). This is
