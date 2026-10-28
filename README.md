@@ -1,5 +1,7 @@
 # HierarchiRetina
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23741643.svg)](https://doi.org/10.5281/zenodo.23741643)
+
 **A diabetic retinopathy screening and grading cascade with heterogeneous mixture-of-experts lesion segmentation.**
 
 This repository contains the code for the manuscript *"HierarchiRetina: A Diabetic Retinopathy Screening and
@@ -207,6 +209,10 @@ classes keep the original attribute names, so the trained checkpoints load with 
 
 Please cite the preprint, [arXiv:2610.17933](https://arxiv.org/abs/2610.17933). A full citation entry will be added when
 the paper is published.
+
+The code is archived on Zenodo. To cite the software, use
+[doi:10.5281/zenodo.23741643](https://doi.org/10.5281/zenodo.23741643), which always resolves to the latest version;
+v1.0.2 has its own DOI, [10.5281/zenodo.23741644](https://doi.org/10.5281/zenodo.23741644).
 
 ## 9. License
 
