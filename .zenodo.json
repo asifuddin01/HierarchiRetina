@@ -1,0 +1,32 @@
+{
+  "title": "HierarchiRetina: code for a diabetic retinopathy screening and grading cascade with heterogeneous mixture-of-experts lesion segmentation",
+  "upload_type": "software",
+  "description": "<p>Source code, notebooks and evaluation scripts for HierarchiRetina, a three-stage system for diabetic retinopathy: a ConvNeXt V2-L screening gate (Stage I), HSMoE-AUNet lesion segmentation and SwinHRUNetPP vessel segmentation (Stage II), and the LG-DRG lesion-guided grader (Stage III).</p><p>The script <code>scripts/reproduce_paper_results.py</code> recomputes every end-to-end number reported in the paper from the released per-image predictions.</p><p>Paper: <em>HierarchiRetina: A Diabetic Retinopathy Screening and Grading Cascade with Heterogeneous Mixture-of-Experts Lesion Segmentation</em>, preprint arXiv:2610.17933, submitted to the IEEE Journal of Biomedical and Health Informatics.</p><p>Licences: the code is under the MIT licence. The per-image predictions in <code>results/</code> are included under CC BY-NC 4.0, because the training datasets restrict commercial use. The trained weights (12 files, about 10 GB, also CC BY-NC 4.0) are not part of this archive; they are attached to the GitHub release v1.0, and <code>scripts/fetch_weights.py</code> downloads them and checks each SHA-256.</p>",
+  "creators": [
+    {
+      "name": "Uddin, Md Asif",
+      "affiliation": "Brac University",
+      "orcid": "0009-0000-1705-4097"
+    }
+  ],
+  "license": "mit",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": [
+    "diabetic retinopathy",
+    "lesion segmentation",
+    "vessel segmentation",
+    "mixture of experts",
+    "ordinal regression",
+    "screening cascade",
+    "medical image analysis",
+    "deep learning"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "arXiv:2610.17933",
+      "relation": "isSupplementTo",
+      "resource_type": "publication-preprint"
+    }
+  ]
+}

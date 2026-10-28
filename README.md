@@ -3,8 +3,8 @@
 **A diabetic retinopathy screening and grading cascade with heterogeneous mixture-of-experts lesion segmentation.**
 
 This repository contains the code for the manuscript *"HierarchiRetina: A Diabetic Retinopathy Screening and
-Grading Cascade with Heterogeneous Mixture-of-Experts Lesion Segmentation"* (submitted to IEEE Journal of
-Biomedical and Health Informatics).
+Grading Cascade with Heterogeneous Mixture-of-Experts Lesion Segmentation"* (preprint:
+[arXiv:2610.17933](https://arxiv.org/abs/2610.17933); submitted to IEEE Journal of Biomedical and Health Informatics).
 
 ![HierarchiRetina overview](docs/overview.png)
 
@@ -205,7 +205,8 @@ classes keep the original attribute names, so the trained checkpoints load with 
 
 ## 8. Citation
 
-A citation entry will be added when the paper is published.
+Please cite the preprint, [arXiv:2610.17933](https://arxiv.org/abs/2610.17933). A full citation entry will be added when
+the paper is published.
 
 ## 9. License
 
